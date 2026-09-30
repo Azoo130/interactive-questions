@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0786d9">
+<title>عرض الأسئلة التفاعلي - الدولة العباسية</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{
+ font-family:"Tajawal","Arial",sans-serif;
+ background:#087fd0;
+ color:#fff;
+ user-select:none;
+}
+button{font-family:inherit;outline:none}
+.screen{
+ position:relative;width:100vw;height:100dvh;min-height:520px;overflow:hidden;
+ background:
+ radial-gradient(circle at 15% 20%,#55cfff 0 2px,transparent 3px),
+ radial-gradient(circle at 80% 12%,#9deaff 0 3px,transparent 4px),
+ linear-gradient(180deg,#087bd1 0%,#0b92e1 54%,#087ac7 100%);
+}
+
+/* ===== شاشة البداية ===== */
+.splash{
+ position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:20px;
+ background:linear-gradient(180deg,#065a9e,#0a84d4);
+ transition:opacity .6s,visibility .6s;
+}
+.splash.hide{opacity:0;visibility:hidden}
+.splash-icon{font-size:100px;animation:bounce 1.2s ease-in-out infinite}
+@keyframes bounce{50%{transform:translateY(-18px)}}
+.splash h1{font-size:clamp(26px,6vw,48px);font-weight:1000;margin:0;text-shadow:0 4px 10px #003b70}
+.splash p{font-size:clamp(16px,3vw,22px);opacity:.9;margin:0}
+.splash-btn{
+ margin-top:10px;padding:16px 50px;border:0;border-radius:20px;cursor:pointer;
+ background:linear-gradient(180deg,#ffd45c,#f5a623);color:#5a3a00;
+ font-size:clamp(18px,3.5vw,26px);font-weight:1000;
+ box-shadow:0 8px 0 #c47d00,0 15px 35px rgba(0,0,0,.3);
+ transition:transform .15s,box-shadow .15s;
+}
+.splash-btn:active{transform:translateY(6px);box-shadow:0 2px 0 #c47d00}
+.splash-btn:hover{filter:brightness(1.08)}
+
+/* ===== فقاعات ===== */
+.bubbles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.bubble{
+ position:absolute;border:2px solid rgba(255,255,255,.32);border-radius:50%;
+ box-shadow:inset 4px 4px 8px rgba(255,255,255,.18);
+ animation:floatUp linear infinite;
+}
+@keyframes floatUp{
+ 0%{transform:translateY(115vh) scale(.7);opacity:0}
+ 12%{opacity:.8}
+ 100%{transform:translateY(-20vh) scale(1.15);opacity:0}
+}
+
+/* ===== الشريط العلوي ===== */
+.topbar{
+ position:absolute;top:0;left:0;right:0;height:100px;z-index:5;
+ display:flex;align-items:center;justify-content:center;
+ background:linear-gradient(180deg,rgba(0,47,92,.32),transparent);
+}
+.title{
+ margin-top:12px;padding:10px 30px;border-radius:15px;
+ background:linear-gradient(180deg,#3154c9,#2543b6);
+ box-shadow:0 8px 25px rgba(0,22,80,.25),inset 0 1px rgba(255,255,255,.25);
+ font-size:clamp(20px,4.5vw,43px);font-weight:900;letter-spacing:.2px;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:96vw;
+}
+
+/* ===== المسرح ===== */
+.stage{
+ position:absolute;inset:95px 0 0;display:flex;align-items:center;justify-content:center;
+ padding:20px;z-index:3;
+}
+.home,.question-view{
+ width:min(1050px,96vw);height:min(700px,calc(100dvh - 125px));
+ position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.subtitle{
+ font-size:clamp(20px,4vw,34px);font-weight:900;margin-bottom:15px;
+ text-shadow:0 3px 4px #003b70;animation:glow 2.5s ease-in-out infinite;
+}
+@keyframes glow{50%{text-shadow:0 3px 4px #003b70,0 0 25px #9deaff}}
+
+/* ===== شريط الإحصائيات ===== */
+.stats{
+ display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap;justify-content:center;
+}
+.stat{
+ background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.35);
+ border-radius:15px;padding:8px 20px;font-weight:900;
+ font-size:clamp(13px,2.4vw,17px);backdrop-filter:blur(6px);
+ display:flex;align-items:center;gap:8px;
+}
+.stat b{color:#ffd45c;font-size:clamp(16px,3vw,22px)}
+
+/* ===== شبكة الأرقام ===== */
+.grid{
+ width:min(900px,92vw);display:grid;grid-template-columns:repeat(5,1fr);
+ gap:clamp(10px,2.5vw,24px);align-items:center;justify-items:center;
+}
+.number{
+ position:relative;
+ width:clamp(58px,11vw,110px);aspect-ratio:1;border-radius:50%;
+ border:2px solid rgba(255,255,255,.55);
+ background:radial-gradient(circle at 32% 25%,rgba(255,255,255,.75),rgba(255,255,255,.22) 23%,rgba(37,214,255,.12) 65%);
+ box-shadow:0 8px 24px rgba(0,45,100,.22),inset 0 0 20px rgba(255,255,255,.22);
+ color:#ffb4f2;text-shadow:0 3px 0 #a748b5,0 0 12px #ff7ce9;
+ font-size:clamp(22px,4.5vw,48px);font-weight:1000;cursor:pointer;
+ transition:transform .22s,filter .22s,opacity .22s;
+ animation:gentle 2.8s ease-in-out infinite;
+}
+.number:nth-child(2n){animation-delay:-.7s}
+.number:nth-child(3n){animation-delay:-1.4s}
+.number:hover,.number:active{transform:scale(1.12);filter:brightness(1.2)}
+.number.used{opacity:.32;filter:grayscale(.3);animation:none;cursor:default}
+.number.used::after{
+ content:"✓";position:absolute;top:-4px;left:-4px;
+ width:26px;height:26px;border-radius:50%;background:#26b979;
+ color:#fff;font-size:16px;display:grid;place-items:center;
+ box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.number.correct-mark{color:#a8ffcf;text-shadow:0 3px 0 #14714e,0 0 12px #26b979}
+.number.wrong-mark{color:#ffb4b4;text-shadow:0 3px 0 #a62943,0 0 12px #ed526c}
+@keyframes gentle{50%{transform:translateY(-5px)}}
+
+/* ===== قاع البحر ===== */
+.seabed{
+ position:absolute;left:-5%;right:-5%;bottom:-6%;height:23%;
+ background:linear-gradient(180deg,#f2dba4,#e9cc8f 60%,#d6b979);
+ border-radius:50% 50% 0 0/35% 35% 0 0;z-index:1;
+}
+.coral{
+ position:absolute;bottom:12%;width:28px;height:125px;border-radius:60% 60% 15% 15%;
+ background:#ff4fa5;z-index:2;filter:drop-shadow(0 4px 3px #004c80);
+ animation:sway 3s ease-in-out infinite;
+}
+.coral:before,.coral:after{content:"";position:absolute;width:25px;height:85px;background:inherit;border-radius:60%;bottom:25px}
+.coral:before{right:18px;transform:rotate(28deg)}
+.coral:after{left:18px;transform:rotate(-28deg)}
+@keyframes sway{50%{transform:rotate(3deg)}}
+.c1{left:8%;background:#ff68b5;height:95px}
+.c2{left:22%;background:#f6d32e;height:110px;animation-delay:-1s}
+.c3{right:15%;background:#ff5d91;height:105px;animation-delay:-2s}
+.c4{right:28%;background:#72d94f;height:130px;animation-delay:-.5s}
+.fish{position:absolute;font-size:clamp(25px,5vw,50px);z-index:2;animation:swim 12s linear infinite}
+.f1{top:35%;left:-10%}
+.f2{top:48%;right:-10%;animation-delay:-6s;transform:scaleX(-1)}
+.f3{top:70%;left:-10%;animation-delay:-3s;font-size:clamp(18px,3.5vw,36px)}
+@keyframes swim{from{transform:translateX(0)}to{transform:translateX(120vw)}}
+
+/* ===== صفحة السؤال ===== */
+.question-view{display:none;justify-content:flex-start;padding-top:25px}
+.question-view.show{display:flex;animation:slideIn .45s ease}
+@keyframes slideIn{from{opacity:0;transform:scale(.94) translateY(25px)}to{opacity:1;transform:none}}
+.q-card{
+ width:min(930px,94vw);background:rgba(255,255,255,.97);color:#18345b;
+ border-radius:28px;padding:clamp(20px,4vw,42px);
+ box-shadow:0 20px 55px rgba(0,33,78,.3);
+ text-align:center;position:relative;
+}
+.q-number{
+ position:absolute;top:-25px;right:28px;width:62px;height:62px;border-radius:50%;
+ display:grid;place-items:center;background:#3154c9;color:#fff;font-size:27px;font-weight:900;
+ box-shadow:0 8px 20px #003b7066;animation:pulseNum 2s ease-in-out infinite;
+}
+@keyframes pulseNum{50%{transform:scale(1.08);box-shadow:0 8px 20px #003b70aa,0 0 20px #3154c9}}
+.q-label{font-size:15px;color:#3471a8;font-weight:900;margin-bottom:8px}
+.question{font-size:clamp(20px,4vw,34px);line-height:1.65;font-weight:1000;margin:8px auto 22px;max-width:850px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.option{
+ border:0;border-radius:17px;padding:14px 18px;min-height:66px;
+ background:#eef7ff;color:#194a75;font-size:clamp(15px,2.5vw,21px);font-weight:800;
+ text-align:right;cursor:pointer;border:2px solid transparent;transition:.2s;
+ box-shadow:0 4px 12px #006ab514;position:relative;overflow:hidden;
+}
+.option::before{
+ content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(49,84,201,.18),transparent 65%);
+ opacity:0;transition:opacity .3s;
+}
+.option:hover::before{opacity:1}
+.option:hover{transform:translateY(-2px);background:#dff2ff}
+.option .letter{
+ display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;
+ background:#cceaff;margin-left:9px;color:#23618f;transition:.2s;
+}
+.option:hover .letter{background:#3154c9;color:#fff;transform:rotate(-8deg) scale(1.1)}
+.option.correct{background:#dff9e9;border-color:#26b979;color:#14714e;animation:correct .45s}
+.option.correct .letter{background:#26b979;color:#fff}
+.option.wrong{background:#ffe6eb;border-color:#ed526c;color:#a62943;animation:wrong .45s}
+.option.wrong .letter{background:#ed526c;color:#fff}
+.option:disabled{cursor:default}
+@keyframes correct{50%{transform:scale(1.035)}}
+@keyframes wrong{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.feedback{min-height:46px;margin-top:10px;font-size:17px;font-weight:900;transition:.3s}
+.feedback.pop{animation:fbPop .4s}
+@keyframes fbPop{0%{transform:scale(.85);opacity:0}100%{transform:scale(1);opacity:1}}
+.controls{display:flex;gap:10px;justify-content:center;margin-top:6px;flex-wrap:wrap}
+.control{
+ border:0;border-radius:14px;padding:12px 22px;background:#3154c9;color:#fff;
+ font-weight:900;font-size:15px;cursor:pointer;transition:.2s;
+ box-shadow:0 4px 12px #003b7033;
+}
+.control:hover{transform:translateY(-2px);filter:brightness(1.1);box-shadow:0 7px 18px #003b7055}
+.control:active{transform:translateY(1px)}
+.control.secondary{background:#eaf3fa;color:#27577d}
+.control:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.progress{width:min(850px,88vw);height:7px;background:#ffffff55;border-radius:99px;overflow:hidden;margin-top:12px}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffb8ef,#ffd45c);border-radius:99px;transition:.4s}
+
+/* ===== نتيجة ===== */
+.result{
+ position:absolute;inset:0;background:rgba(0,35,75,.55);backdrop-filter:blur(6px);z-index:20;
+ display:none;align-items:center;justify-content:center;padding:20px;
+}
+.result.show{display:flex}
+.result-box{
+ background:#fff;color:#18345b;border-radius:28px;padding:32px;
+ text-align:center;width:min(460px,90vw);animation:pop .45s;
+}
+.result-icon{font-size:80px;animation:bounce 1.4s ease-in-out infinite}
+.result-box h2{margin:0;font-size:31px}
+.result-box p{line-height:1.8;color:#63758b;font-size:17px}
+.result-score{
+ font-size:44px;font-weight:1000;color:#3154c9;margin:12px 0;
+ text-shadow:0 3px 0 #dbe7ff;
+}
+.result-bar{
+ height:14px;background:#e8f0fa;border-radius:99px;overflow:hidden;margin:14px 0;
+}
+.result-bar i{
+ display:block;height:100%;width:0;border-radius:99px;
+ background:linear-gradient(90deg,#26b979,#ffd45c,#ed526c);
+ transition:width 1s ease .3s;
+}
+@keyframes pop{from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:1}}
+.confetti{position:fixed;top:-20px;width:9px;height:18px;z-index:50;animation:conf 1.8s linear forwards;border-radius:2px}
+@keyframes conf{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* ===== حركات دخول ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.fade-up{animation:fadeUp .5s ease backwards}
+
+@media(max-width:650px){
+ .topbar{height:78px}
+ .stage{inset:78px 0 0;padding:10px}
+ .title{font-size:20px;padding:8px 19px}
+ .home,.question-view{height:calc(100dvh - 92px)}
+ .grid{gap:8px}
+ .number{width:clamp(50px,15vw,74px);font-size:22px}
+ .answers{grid-template-columns:1fr;gap:9px}
+ .option{min-height:55px;padding:9px 12px}
+ .q-card{padding:24px 13px 15px;border-radius:22px}
+ .q-number{width:48px;height:48px;top:-20px;right:15px;font-size:21px}
+ .question{margin-top:12px;font-size:19px}
+ .feedback{font-size:14px}
+ .seabed{height:18%}
+ .stat{padding:6px 12px}
+ .result-box{padding:24px 18px}
+ .result-icon{font-size:60px}
+}
+</style>
+</head>
+<body>
+
+<!-- شاشة البداية -->
+<div class="splash" id="splash">
+  <div class="splash-icon">🏛️</div>
+  <h1>الدولة العباسية</h1>
+  <p>🌊 رحلة تفاعلية في أسئلة التاريخ 🌊</p>
+  <button class="splash-btn" id="startBtn">ابدأ الرحلة 🚀</button>
+</div>
+
+<div class="screen">
+ <div class="bubbles" id="bubbles"></div>
+ <div class="topbar"><div class="title">عرض تفاعلي لأسئلة الدولة العباسية</div></div>
+
+ <main class="stage">
+  <section class="home" id="home">
+   <div class="subtitle">🌊 فقرة الأسئلة 🌊</div>
+   <div class="stats">
+     <div class="stat">✅ صحيح: <b id="statCorrect">0</b></div>
+     <div class="stat">❌ خطأ: <b id="statWrong">0</b></div>
+     <div class="stat">📊 تقدمك: <b id="statProgress">0/25</b></div>
+   </div>
+   <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="question-view" id="questionView">
+   <div class="q-card">
+    <div class="q-number" id="qNumber">01</div>
+    <div class="q-label">فقرة السؤال — اختر الإجابة الصحيحة</div>
+    <div class="question" id="questionText"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="controls">
+      <button class="control secondary" id="backBtn">↩ العودة للأسئلة</button>
+      <button class="control" id="nextBtn">السؤال التالي ←</button>
+    </div>
+   </div>
+   <div class="progress"><i id="progress"></i></div>
+  </section>
+ </main>
+
+ <div class="seabed"></div>
+ <div class="coral c1"></div><div class="coral c2"></div>
+ <div class="coral c3"></div><div class="coral c4"></div>
+ <div class="fish f1">🐠</div><div class="fish f2">🐟</div><div class="fish f3">🐡</div>
+
+ <div class="result" id="result">
+  <div class="result-box">
+   <div class="result-icon" id="resultIcon">🏆</div>
+   <h2 id="resultTitle">أحسنت!</h2>
+   <div class="result-score" id="resultScore">0 / 25</div>
+   <div class="result-bar"><i id="resultBarFill"></i></div>
+   <p id="resultText"></p>
+   <button class="control" id="resultClose">العودة للأسئلة</button>
+  </div>
+ </div>
+</div>
+
+<script>
+const QUESTIONS = [["إلى من تُنسب الدولة العباسية؟", ["علي بن أبي طالب", "العباس بن عبدالمطلب", "معاوية بن أبي سفيان", "عبدالملك بن مروان"], 1], ["متى قامت الدولة العباسية؟", ["41هـ", "92هـ", "132هـ", "656هـ"], 2], ["من أول خلفاء الدولة العباسية؟", ["أبو جعفر المنصور", "هارون الرشيد", "أبو العباس السفاح", "المعتصم بالله"], 2], ["من مؤسس مدينة بغداد؟", ["هارون الرشيد", "أبو جعفر المنصور", "أبو العباس السفاح", "المأمون"], 1], ["ما عاصمة الدولة العباسية؟", ["دمشق", "بغداد", "مكة المكرمة", "المدينة المنورة"], 1], ["من أشهر خلفاء الدولة العباسية؟", ["هارون الرشيد", "معاوية بن أبي سفيان", "عبدالملك بن مروان", "عمرو بن العاص"], 0], ["في عهد من بلغت الدولة العباسية أوج قوتها؟", ["هارون الرشيد", "أبو العباس السفاح", "المستعصم بالله", "أبو جعفر المنصور"], 0], ["ما المدينة التي اتخذها المعتصم عاصمة له؟", ["بغداد", "سامراء", "دمشق", "البصرة"], 1], ["ماذا كان يُسمى مركز العلم والترجمة في بغداد؟", ["دار العلم", "بيت الحكمة", "دار المعرفة", "بيت العلماء"], 1], ["أي مجال ازدهر في العصر العباسي؟", ["العلوم", "الزراعة فقط", "الصيد فقط", "الرعي فقط"], 0], ["أي علم من العلوم التي ازدهرت في العصر العباسي؟", ["الفلك", "ألعاب القوى", "التصوير", "التصميم"], 0], ["ما سبب ازدهار الحركة العلمية في العصر العباسي؟", ["الاهتمام بالعلم والعلماء", "قلة المدارس", "توقف الترجمة", "ضعف التجارة"], 0], ["ما المدينة التي أصبحت مركزًا للعلم والحضارة؟", ["بغداد", "الطائف", "تبوك", "صنعاء"], 0], ["ما النشاط الذي ازدهر في العصر العباسي؟", ["التجارة", "العزلة", "توقف الرحلات", "إغلاق الأسواق"], 0], ["من العوامل التي ساعدت على ازدهار الدولة العباسية؟", ["الاستقرار", "الحروب المستمرة", "ضعف الاقتصاد", "قلة العلماء"], 0], ["ماذا كان دور الترجمة في العصر العباسي؟", ["نقل العلوم والمعارف", "إيقاف التعليم", "تقليل الكتب", "إغلاق المكتبات"], 0], ["أي مدينة ارتبطت بالخليفة أبي جعفر المنصور؟", ["بغداد", "سامراء", "القاهرة", "دمشق"], 0], ["ما الذي أدى إلى ضعف الدولة العباسية؟", ["ظهور دويلات مستقلة", "ازدهار العلم", "قوة التجارة", "كثرة العلماء"], 0], ["من آخر خلفاء الدولة العباسية في بغداد؟", ["المستعصم بالله", "هارون الرشيد", "المأمون", "المعتصم بالله"], 0], ["متى سقطت بغداد؟", ["132هـ", "232هـ", "450هـ", "656هـ"], 3], ["على يد من سقطت بغداد؟", ["المغول", "الروم", "الأمويين", "الصليبيين"], 0], ["ماذا حدث للدولة العباسية بعد سقوط بغداد؟", ["انتهت الخلافة العباسية في بغداد", "أصبحت أقوى", "انتقلت عاصمتها إلى دمشق", "توسعت في الأندلس"], 0], ["ما أهمية بغداد في العصر العباسي؟", ["مركز سياسي وعلمي وحضاري", "مركز زراعي فقط", "مدينة صغيرة", "مركز عسكري فقط"], 0], ["من أبرز مظاهر الحضارة العباسية؟", ["التقدم العلمي والثقافي", "توقف التعليم", "قلة الكتب", "ضعف الترجمة"], 0], ["أي مما يأتي يُعد من أسباب قوة الدولة العباسية في بدايتها؟", ["قوة الدولة وتنظيمها", "كثرة الانقسامات", "ضعف الاقتصاد", "فقدان المدن الرئيسية"], 0]];
+
+const letters = ["أ","ب","ج","د"];
+let current = -1, score = 0, wrongCount = 0, answered = false;
+const completed = new Map(); // index -> "correct" | "wrong"
+
+const home = document.getElementById("home");
+const questionView = document.getElementById("questionView");
+const grid = document.getElementById("grid");
+const questionText = document.getElementById("questionText");
+const answers = document.getElementById("answers");
+const feedback = document.getElementById("feedback");
+const qNumber = document.getElementById("qNumber");
+const nextBtn = document.getElementById("nextBtn");
+const progress = document.getElementById("progress");
+const statCorrect = document.getElementById("statCorrect");
+const statWrong = document.getElementById("statWrong");
+const statProgress = document.getElementById("statProgress");
+
+/* ===== فقاعات ===== */
+function makeBubbles(){
+ const box=document.getElementById("bubbles");
+ for(let i=0;i<36;i++){
+   const b=document.createElement("span");
+   b.className="bubble";
+   const s=6+Math.random()*36;
+   b.style.width=s+"px";
+   b.style.height=s+"px";
+   b.style.left=Math.random()*100+"%";
+   b.style.animationDuration=(7+Math.random()*11)+"s";
+   b.style.animationDelay=(-Math.random()*15)+"s";
+   box.appendChild(b);
+ }
+}
+
+/* ===== بناء الشبكة ===== */
+function buildGrid(){
+ QUESTIONS.forEach((q,i)=>{
+   const b=document.createElement("button");
+   b.className="number fade-up";
+   b.style.animationDelay=(i*0.03)+"s";
+   b.textContent=String(i+1).padStart(2,"0");
+   b.onclick=()=>openQuestion(i);
+   grid.appendChild(b);
+ });
+}
+
+/* ===== فتح سؤال ===== */
+function openQuestion(i){
+ current=i;
+ answered=false;
+ home.style.display="none";
+ questionView.classList.add("show");
+ qNumber.textContent=String(i+1).padStart(2,"0");
+ questionText.textContent=QUESTIONS[i][0];
+ feedback.textContent="";
+ feedback.classList.remove("pop");
+ answers.innerHTML="";
+ nextBtn.textContent = i === QUESTIONS.length-1 ? "نتيجة الاختبار 🏆" : "السؤال التالي ←";
+ progress.style.width=((i+1)/QUESTIONS.length*100)+"%";
+ QUESTIONS[i][1].forEach((text,j)=>{
+   const b=document.createElement("button");
+   b.className="option fade-up";
+   b.style.animationDelay=(j*0.06)+"s";
+   b.innerHTML='<span class="letter">'+letters[j]+'</span>'+text;
+   b.onclick=()=>choose(j,b);
+   answers.appendChild(b);
+ });
+
+ // إذا تم الإجابة مسبقًا على هذا السؤال، أظهر الإجابة
+ if(completed.has(i)){
+   answered=true;
+   const correct=QUESTIONS[i][2];
+   const all=[...answers.children];
+   all.forEach((b,k)=>{
+     b.disabled=true;
+     if(k===correct) b.classList.add("correct");
+   });
+   const prev=completed.get(i);
+   if(prev==="correct"){
+     feedback.innerHTML="🎉 تمت الإجابة سابقًا بشكل صحيح";
+   } else {
+     feedback.innerHTML="❌ تمت الإجابة سابقًا بشكل خاطئ — الإجابة الصحيحة: <b>"+QUESTIONS[i][1][correct]+"</b>";
+     // ابحث عن الإجابة التي اختارها المستخدم سابقًا لا يمكن استرجاعها، لذا فقط نعرض الصحيح
+   }
+ }
+ playSound("open");
+}
+
+/* ===== اختيار الإجابة ===== */
+function choose(choice,clicked){
+ if(answered)return;
+ answered=true;
+ const correct=QUESTIONS[current][2];
+ const all=[...answers.children];
+ all.forEach((b,i)=>{
+   b.disabled=true;
+   if(i===correct)b.classList.add("correct");
+ });
+ if(choice===correct){
+   score++;
+   clicked.classList.add("correct");
+   feedback.innerHTML="🎉 أحسنت! إجابتك صحيحة";
+   completed.set(current,"correct");
+   playSound("correct");
+   confetti(60);
+ } else {
+   wrongCount++;
+   clicked.classList.add("wrong");
+   feedback.innerHTML="❌ إجابة غير صحيحة — الإجابة الصحيحة: <b>"+QUESTIONS[current][1][correct]+"</b>";
+   completed.set(current,"wrong");
+   playSound("wrong");
+ }
+ feedback.classList.add("pop");
+ updateStats();
+ markUsed();
+}
+
+/* ===== تحديث الإحصائيات ===== */
+function updateStats(){
+ statCorrect.textContent=score;
+ statWrong.textContent=wrongCount;
+ statProgress.textContent=completed.size+"/"+QUESTIONS.length;
+}
+
+/* ===== تحديث أزرار الشبكة ===== */
+function markUsed(){
+ [...grid.children].forEach((b,i)=>{
+   b.classList.toggle("used",completed.has(i));
+   b.classList.remove("correct-mark","wrong-mark");
+   if(completed.get(i)==="correct") b.classList.add("correct-mark");
+   if(completed.get(i)==="wrong") b.classList.add("wrong-mark");
+ });
+}
+
+/* ===== التالي ===== */
+function next(){
+ if(!answered)return;
+ if(current===QUESTIONS.length-1) showResult();
+ else openQuestion(current+1);
+}
+
+/* ===== العودة ===== */
+function back(){
+ questionView.classList.remove("show");
+ home.style.display="flex";
+ markUsed();
+ playSound("click");
+}
+
+/* ===== عرض النتيجة ===== */
+function showResult(){
+ const total=QUESTIONS.length;
+ const pct=Math.round(score/total*100);
+ let title,icon;
+ if(pct>=90){title="ممتاز جدًا! 🏆";icon="🏆"}
+ else if(pct>=75){title="أحسنت! 🌟";icon="🌟"}
+ else if(pct>=50){title="جيد! 👍";icon="👍"}
+ else {title="حاول مرة أخرى 💪";icon="💪"}
+
+ document.getElementById("resultIcon").textContent=icon;
+ document.getElementById("resultTitle").textContent=title;
+ document.getElementById("resultScore").textContent=score+" / "+total;
+ document.getElementById("resultText").textContent=
+   "أجبت بشكل صحيح على "+score+" سؤالًا من أصل "+total+" — نسبة نجاحك "+pct+"%. يمكنك العودة واختيار أي سؤال مرة أخرى.";
+ document.getElementById("result").classList.add("show");
+ setTimeout(()=>{document.getElementById("resultBarFill").style.width=pct+"%"},100);
+ playSound("correct");
+ confetti(120);
+}
+
+function closeResult(){
+ document.getElementById("result").classList.remove("show");
+ document.getElementById("resultBarFill").style.width="0";
+ back();
+}
+
+/* ===== الأصوات ===== */
+let audioCtx;
+function tone(freq,duration,type="sine",gain=.06){
+ try{
+  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type;o.frequency.value=freq;g.gain.value=gain;
+  o.connect(g);g.connect(audioCtx.destination);
+  const now=audioCtx.currentTime;
+  g.gain.setValueAtTime(gain,now);
+  g.gain.exponentialRampToValueAtTime(.001,now+duration);
+  o.start(now);o.stop(now+duration);
+ }catch(e){}
+}
+function playSound(kind){
+ if(kind==="correct"){
+   tone(523,.12,"sine",.07);
+   setTimeout(()=>tone(659,.14,"sine",.07),110);
+   setTimeout(()=>tone(784,.2,"sine",.07),230);
+ }
+ else if(kind==="wrong"){
+   tone(220,.18,"sawtooth",.045);
+   setTimeout(()=>tone(165,.25,"sawtooth",.04),120);
+ }
+ else if(kind==="open"){
+   tone(440,.07,"sine",.035);
+   setTimeout(()=>tone(660,.09,"sine",.035),70);
+ }
+ else if(kind==="start"){
+   tone(392,.1,"sine",.05);
+   setTimeout(()=>tone(523,.1,"sine",.05),100);
+   setTimeout(()=>tone(659,.15,"sine",.05),200);
+   setTimeout(()=>tone(784,.25,"sine",.06),320);
+ }
+ else tone(350,.06,"sine",.025);
+}
+
+/* ===== احتفال ===== */
+function confetti(count=45){
+ const colors=["#ff65bf","#ffd45c","#58e1ff","#8cff72","#fff","#ff9a4d"];
+ for(let i=0;i<count;i++){
+  const x=document.createElement("span");
+  x.className="confetti";
+  x.style.right=(Math.random()*100)+"vw";
+  x.style.background=colors[i%colors.length];
+  x.style.animationDelay=(Math.random()*.35)+"s";
+  x.style.width=(6+Math.random()*8)+"px";
+  x.style.height=(10+Math.random()*14)+"px";
+  document.querySelector(".screen").appendChild(x);
+  setTimeout(()=>x.remove(),2200);
+ }
+}
+
+/* ===== شاشة البداية ===== */
+document.getElementById("startBtn").onclick=function(){
+ document.getElementById("splash").classList.add("hide");
+ playSound("start");
+ setTimeout(()=>{
+   document.querySelectorAll(".number").forEach((b,i)=>{
+     b.style.animationDelay=(i*0.03)+"s";
+   });
+ },100);
+};
+
+/* ===== ربط الأزرار ===== */
+document.getElementById("backBtn").onclick=back;
+nextBtn.onclick=next;
+document.getElementById("resultClose").onclick=closeResult;
+
+/* ===== تشغيل ===== */
+makeBubbles();
+buildGrid();
+updateStats();
+</script>
+</body>
+</html>
